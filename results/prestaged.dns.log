@@ -1,0 +1,140 @@
+Oct 14 20:33:25 dnsmasq[1]: started, version 2.90 cachesize 150
+Oct 14 20:33:25 dnsmasq[1]: compile time options: IPv6 GNU-getopt no-DBus no-UBus no-i18n no-IDN DHCP DHCPv6 no-Lua TFTP no-conntrack ipset no-nftset auth no-cryptohash no-DNSSEC loop-detect inotify dumpfile
+Oct 14 20:33:25 dnsmasq[1]: warning: no upstream servers configured
+Oct 14 20:33:25 dnsmasq[1]: cleared cache
+Oct 14 20:33:26 dnsmasq[1]: 1 10.77.0.11/33973 query[AAAA] ollama.com from 10.77.0.11
+Oct 14 20:33:26 dnsmasq[1]: 1 10.77.0.11/33973 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:26 dnsmasq[1]: 2 10.77.0.11/36026 query[A] ollama.com from 10.77.0.11
+Oct 14 20:33:26 dnsmasq[1]: 2 10.77.0.11/36026 config ollama.com is 198.51.100.1
+Oct 14 20:33:26 dnsmasq[1]: 3 10.77.0.11/43721 query[AAAA] ollama.com from 10.77.0.11
+Oct 14 20:33:26 dnsmasq[1]: 3 10.77.0.11/43721 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:58 dnsmasq[1]: 4 10.77.0.20/38689 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 4 10.77.0.20/38689 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:58 dnsmasq[1]: 5 10.77.0.20/36789 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 5 10.77.0.20/36789 config huggingface.co is 198.51.100.1
+Oct 14 20:33:58 dnsmasq[1]: 6 10.77.0.20/57652 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 6 10.77.0.20/57652 config huggingface.co is 198.51.100.1
+Oct 14 20:33:58 dnsmasq[1]: 7 10.77.0.20/37008 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 7 10.77.0.20/37008 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:58 dnsmasq[1]: 8 10.77.0.20/59465 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 8 10.77.0.20/59465 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:58 dnsmasq[1]: 9 10.77.0.20/43831 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 9 10.77.0.20/43831 config huggingface.co is 198.51.100.1
+Oct 14 20:33:58 dnsmasq[1]: 10 10.77.0.20/34986 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 10 10.77.0.20/34986 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:58 dnsmasq[1]: 11 10.77.0.20/45151 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 11 10.77.0.20/45151 config huggingface.co is 198.51.100.1
+Oct 14 20:33:58 dnsmasq[1]: 12 10.77.0.20/51388 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 12 10.77.0.20/51388 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:58 dnsmasq[1]: 13 10.77.0.20/60544 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 13 10.77.0.20/60544 config huggingface.co is 198.51.100.1
+Oct 14 20:33:58 dnsmasq[1]: 14 10.77.0.20/58160 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 14 10.77.0.20/58160 config huggingface.co is 198.51.100.1
+Oct 14 20:33:58 dnsmasq[1]: 15 10.77.0.20/50980 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 15 10.77.0.20/50980 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:58 dnsmasq[1]: 16 10.77.0.20/41080 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 16 10.77.0.20/41080 config huggingface.co is 198.51.100.1
+Oct 14 20:33:58 dnsmasq[1]: 17 10.77.0.20/41991 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:58 dnsmasq[1]: 17 10.77.0.20/41991 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:59 dnsmasq[1]: 18 10.77.0.20/44235 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:33:59 dnsmasq[1]: 18 10.77.0.20/44235 config error is REFUSED (EDE: not ready)
+Oct 14 20:33:59 dnsmasq[1]: 19 10.77.0.20/33908 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:33:59 dnsmasq[1]: 19 10.77.0.20/33908 config huggingface.co is 198.51.100.1
+Oct 14 20:34:01 dnsmasq[1]: 20 10.77.0.20/55177 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:01 dnsmasq[1]: 20 10.77.0.20/55177 config huggingface.co is 198.51.100.1
+Oct 14 20:34:01 dnsmasq[1]: 21 10.77.0.20/56747 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:01 dnsmasq[1]: 21 10.77.0.20/56747 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:03 dnsmasq[1]: 22 10.77.0.20/50420 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:03 dnsmasq[1]: 22 10.77.0.20/50420 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:03 dnsmasq[1]: 23 10.77.0.20/48075 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:03 dnsmasq[1]: 23 10.77.0.20/48075 config huggingface.co is 198.51.100.1
+Oct 14 20:34:07 dnsmasq[1]: 24 10.77.0.20/52743 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:07 dnsmasq[1]: 24 10.77.0.20/52743 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:07 dnsmasq[1]: 25 10.77.0.20/55062 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:07 dnsmasq[1]: 25 10.77.0.20/55062 config huggingface.co is 198.51.100.1
+Oct 14 20:34:09 dnsmasq[1]: 26 10.77.0.12/51297 query[A] arizeai-433a7140.mintlify.app from 10.77.0.12
+Oct 14 20:34:09 dnsmasq[1]: 26 10.77.0.12/51297 config arizeai-433a7140.mintlify.app is 198.51.100.1
+Oct 14 20:34:09 dnsmasq[1]: 27 10.77.0.12/58826 query[AAAA] arizeai-433a7140.mintlify.app from 10.77.0.12
+Oct 14 20:34:09 dnsmasq[1]: 27 10.77.0.12/58826 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:15 dnsmasq[1]: 28 10.77.0.20/40822 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:15 dnsmasq[1]: 28 10.77.0.20/40822 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:15 dnsmasq[1]: 29 10.77.0.20/52415 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:15 dnsmasq[1]: 29 10.77.0.20/52415 config huggingface.co is 198.51.100.1
+Oct 14 20:34:24 dnsmasq[1]: 30 10.77.0.20/56987 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:24 dnsmasq[1]: 30 10.77.0.20/56987 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:24 dnsmasq[1]: 31 10.77.0.20/55980 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:24 dnsmasq[1]: 31 10.77.0.20/55980 config huggingface.co is 198.51.100.1
+Oct 14 20:34:24 dnsmasq[1]: 32 10.77.0.20/57132 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:24 dnsmasq[1]: 32 10.77.0.20/57132 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:24 dnsmasq[1]: 33 10.77.0.20/36966 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:24 dnsmasq[1]: 33 10.77.0.20/36966 config huggingface.co is 198.51.100.1
+Oct 14 20:34:25 dnsmasq[1]: 34 10.77.0.20/40454 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:25 dnsmasq[1]: 34 10.77.0.20/40454 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:25 dnsmasq[1]: 35 10.77.0.20/60791 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:25 dnsmasq[1]: 35 10.77.0.20/60791 config huggingface.co is 198.51.100.1
+Oct 14 20:34:27 dnsmasq[1]: 36 10.77.0.20/44473 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:27 dnsmasq[1]: 36 10.77.0.20/44473 config huggingface.co is 198.51.100.1
+Oct 14 20:34:27 dnsmasq[1]: 37 10.77.0.20/51751 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:27 dnsmasq[1]: 37 10.77.0.20/51751 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:28 dnsmasq[1]: 38 10.77.0.20/41263 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:28 dnsmasq[1]: 38 10.77.0.20/41263 config huggingface.co is 198.51.100.1
+Oct 14 20:34:28 dnsmasq[1]: 39 10.77.0.20/49331 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:28 dnsmasq[1]: 39 10.77.0.20/49331 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:30 dnsmasq[1]: 40 10.77.0.20/48076 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:30 dnsmasq[1]: 40 10.77.0.20/48076 config huggingface.co is 198.51.100.1
+Oct 14 20:34:30 dnsmasq[1]: 41 10.77.0.20/52993 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:30 dnsmasq[1]: 41 10.77.0.20/52993 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:33 dnsmasq[1]: 42 10.77.0.20/57089 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:33 dnsmasq[1]: 42 10.77.0.20/57089 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:33 dnsmasq[1]: 43 10.77.0.20/54635 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:33 dnsmasq[1]: 43 10.77.0.20/54635 config huggingface.co is 198.51.100.1
+Oct 14 20:34:38 dnsmasq[1]: 44 10.77.0.20/51428 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:38 dnsmasq[1]: 44 10.77.0.20/51428 config huggingface.co is 198.51.100.1
+Oct 14 20:34:38 dnsmasq[1]: 45 10.77.0.20/48796 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:38 dnsmasq[1]: 45 10.77.0.20/48796 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:47 dnsmasq[1]: 46 10.77.0.20/52477 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:47 dnsmasq[1]: 46 10.77.0.20/52477 config huggingface.co is 198.51.100.1
+Oct 14 20:34:47 dnsmasq[1]: 47 10.77.0.20/60949 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:47 dnsmasq[1]: 47 10.77.0.20/60949 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:56 dnsmasq[1]: 48 10.77.0.20/60545 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:56 dnsmasq[1]: 48 10.77.0.20/60545 config huggingface.co is 198.51.100.1
+Oct 14 20:34:56 dnsmasq[1]: 49 10.77.0.20/36567 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:56 dnsmasq[1]: 49 10.77.0.20/36567 config error is REFUSED (EDE: not ready)
+Oct 14 20:34:57 dnsmasq[1]: 50 10.77.0.20/48537 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:34:57 dnsmasq[1]: 50 10.77.0.20/48537 config huggingface.co is 198.51.100.1
+Oct 14 20:34:57 dnsmasq[1]: 51 10.77.0.20/53556 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:34:57 dnsmasq[1]: 51 10.77.0.20/53556 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:00 dnsmasq[1]: 52 10.77.0.20/36598 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:35:00 dnsmasq[1]: 52 10.77.0.20/36598 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:00 dnsmasq[1]: 53 10.77.0.20/49347 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:35:00 dnsmasq[1]: 53 10.77.0.20/49347 config huggingface.co is 198.51.100.1
+Oct 14 20:35:03 dnsmasq[1]: 54 10.77.0.20/46712 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:35:03 dnsmasq[1]: 54 10.77.0.20/46712 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:03 dnsmasq[1]: 55 10.77.0.20/34741 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:35:03 dnsmasq[1]: 55 10.77.0.20/34741 config huggingface.co is 198.51.100.1
+Oct 14 20:35:08 dnsmasq[1]: 56 10.77.0.20/46350 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:35:08 dnsmasq[1]: 56 10.77.0.20/46350 config huggingface.co is 198.51.100.1
+Oct 14 20:35:08 dnsmasq[1]: 57 10.77.0.20/58383 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:35:08 dnsmasq[1]: 57 10.77.0.20/58383 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:17 dnsmasq[1]: 58 10.77.0.20/38357 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:35:17 dnsmasq[1]: 58 10.77.0.20/38357 config huggingface.co is 198.51.100.1
+Oct 14 20:35:17 dnsmasq[1]: 59 10.77.0.20/43141 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:35:17 dnsmasq[1]: 59 10.77.0.20/43141 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:26 dnsmasq[1]: 60 10.77.0.20/51856 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:35:26 dnsmasq[1]: 60 10.77.0.20/51856 config huggingface.co is 198.51.100.1
+Oct 14 20:35:26 dnsmasq[1]: 61 10.77.0.20/39052 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:35:26 dnsmasq[1]: 61 10.77.0.20/39052 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:27 dnsmasq[1]: 62 10.77.0.20/45220 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:35:27 dnsmasq[1]: 62 10.77.0.20/45220 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:27 dnsmasq[1]: 63 10.77.0.20/33601 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:35:27 dnsmasq[1]: 63 10.77.0.20/33601 config huggingface.co is 198.51.100.1
+Oct 14 20:35:27 dnsmasq[1]: 64 10.77.0.20/52195 query[AAAA] huggingface.co from 10.77.0.20
+Oct 14 20:35:27 dnsmasq[1]: 64 10.77.0.20/52195 config error is REFUSED (EDE: not ready)
+Oct 14 20:35:27 dnsmasq[1]: 65 10.77.0.20/42364 query[A] huggingface.co from 10.77.0.20
+Oct 14 20:35:27 dnsmasq[1]: 65 10.77.0.20/42364 config huggingface.co is 198.51.100.1
+Oct 14 20:38:15 dnsmasq[1]: 66 10.77.0.11/42523 query[A] ollama.com from 10.77.0.11
+Oct 14 20:38:15 dnsmasq[1]: 66 10.77.0.11/42523 config ollama.com is 198.51.100.1
+Oct 14 20:38:15 dnsmasq[1]: 67 10.77.0.11/53508 query[AAAA] ollama.com from 10.77.0.11
+Oct 14 20:38:15 dnsmasq[1]: 67 10.77.0.11/53508 config error is REFUSED (EDE: not ready)
+Oct 14 20:38:15 dnsmasq[1]: 68 10.77.0.11/36210 query[AAAA] ollama.com from 10.77.0.11
+Oct 14 20:38:15 dnsmasq[1]: 68 10.77.0.11/36210 config error is REFUSED (EDE: not ready)
