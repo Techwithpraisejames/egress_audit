@@ -16,7 +16,8 @@ services:
     environment:
       - ACTIAN_VECTORAI_ACCEPT_EULA=YES
     networks:
-      - rag
+      rag:
+        ipv4_address: 10.77.0.10
 
   ollama:
     image: ollama/ollama:latest@sha256:adca95a12c2b386a8f9a995e7fa0600e187e3323b5e5522f5a6c3b1ec73eff99
@@ -26,7 +27,8 @@ services:
     volumes:
       - ./ollama_data:/root/.ollama
     networks:
-      - rag
+      rag:
+        ipv4_address: 10.77.0.11
 
   phoenix:
     image: arizephoenix/phoenix:latest@sha256:4a58a611389459514a936960d306776b976ed66c96649cef834bbc683ae5b4ab
@@ -39,7 +41,8 @@ services:
     environment:
       - PHOENIX_WORKING_DIR=/mnt/data
     networks:
-      - rag
+      rag:
+        ipv4_address: 10.77.0.12
 
   # The RAG pipeline itself. The "app" profile keeps it out of
   # `docker compose up`, so it only runs when you call it with
@@ -58,11 +61,21 @@ services:
     volumes:
       - ./docs:/app/docs:ro
       - ./hf_cache:/root/.cache/huggingface
+      # LlamaIndex stores the embedding model in its own cache folder
+      # (platformdirs user_cache_dir), not Hugging Face's default location.
+      - ./model_cache:/root/.cache/llama_index
     networks:
-      - rag
+      rag:
+        ipv4_address: 10.77.0.20
 
 networks:
   rag:
     driver: bridge
     driver_opts:
       com.docker.network.bridge.name: br-rag
+    # Fixed addresses let the capture attribute every packet to a component:
+    # 10.77.0.10 vectorai, .11 ollama, .12 phoenix, .20 app, .53 dns sinkhole.
+    ipam:
+      config:
+        - subnet: 10.77.0.0/24
+          gateway: 10.77.0.1

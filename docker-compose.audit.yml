@@ -1,0 +1,35 @@
+# Audit overlay for the egress capture.
+#
+# Adds a logging DNS sinkhole and points every component at it. Every
+# external lookup is recorded and answered with 198.51.100.1, an address
+# reserved for documentation (RFC 5737). The component then tries to connect
+# there, and the deny-all firewall blocks and records the attempt.
+#
+# Use it together with the base file:
+#   export COMPOSE_FILE=docker-compose.yml:docker-compose.audit.yml
+
+services:
+  dns:
+    build: ./audit/dns
+    container_name: dns-sinkhole
+    volumes:
+      - ./capture:/var/log/dns
+    networks:
+      rag:
+        ipv4_address: 10.77.0.53
+
+  vectorai:
+    dns: [10.77.0.53]
+    depends_on: [dns]
+
+  ollama:
+    dns: [10.77.0.53]
+    depends_on: [dns]
+
+  phoenix:
+    dns: [10.77.0.53]
+    depends_on: [dns]
+
+  app:
+    dns: [10.77.0.53]
+    depends_on: [dns]
