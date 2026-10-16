@@ -1,0 +1,29 @@
+== DNS lookups, UTC (first seen, asked by, record type, hostname, count) ==
+20:33:26  ollama                 AAAA  ollama.com                                         x4
+20:33:26  ollama                 A     ollama.com                                         x2
+20:33:58  app                    AAAA  huggingface.co                                     x30
+20:33:58  app                    A     huggingface.co                                     x30
+20:34:09  phoenix                A     arizeai-433a7140.mintlify.app                      x1
+20:34:09  phoenix                AAAA  arizeai-433a7140.mintlify.app                      x1
+
+== Connection attempts leaving the stack, UTC (first seen, from, to, count) ==
+20:33:26  ollama                 -> 198.51.100.1.443/tcp           x3
+20:33:58  app                    -> 198.51.100.1.443/tcp           x48
+20:34:09  phoenix                -> 198.51.100.1.443/tcp           x1
+
+== Firewall blocks, UTC (first seen, from, to, count) ==
+20:34:05  ollama                 -> 198.51.100.1.443/tcp           x3
+20:34:37  app                    -> 198.51.100.1.443/tcp           x48
+20:34:48  phoenix                -> 198.51.100.1.443/tcp           x1
+
+== Coverage ==
+DNS log:        68 lookups recorded
+Packet capture: present. Packets dropped by kernel during capture: 0
+Firewall log:   52 blocked packets logged
+
+Outside all three records:
+  - Traffic from the host itself (Docker daemon, Ubuntu services), which does
+    not cross br-rag or the stack's DNS sinkhole.
+  - Requests made by a browser viewing a component UI from another machine.
+  - Payload contents. Destinations are visible; encrypted contents are not.
+  - Behavior that only triggers outside this run's actions or time window.

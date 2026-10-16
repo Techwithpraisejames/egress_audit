@@ -1,0 +1,34 @@
+== DNS lookups, UTC (first seen, asked by, record type, hostname, count) ==
+20:47:19  ollama                 AAAA  ollama.com                                         x4
+20:47:19  ollama                 A     ollama.com                                         x2
+20:47:28  ollama                 AAAA  registry.ollama.ai                                 x2
+20:47:28  ollama                 A     registry.ollama.ai                                 x1
+20:48:07  app                    AAAA  huggingface.co                                     x24
+20:48:07  app                    A     huggingface.co                                     x24
+20:48:08  phoenix                AAAA  arizeai-433a7140.mintlify.app                      x1
+20:48:08  phoenix                A     arizeai-433a7140.mintlify.app                      x1
+20:57:32  vectorai               A     elspv.pervasive.com                                x1
+20:57:32  vectorai               AAAA  elspv.pervasive.com                                x1
+
+== Connection attempts leaving the stack, UTC (first seen, from, to, count) ==
+20:47:19  ollama                 -> 198.51.100.1.443/tcp           x4
+20:48:07  app                    -> 198.51.100.1.443/tcp           x26
+20:48:08  phoenix                -> 198.51.100.1.443/tcp           x1
+
+== Firewall blocks, UTC (first seen, from, to, count) ==
+20:48:16  ollama                 -> 198.51.100.1.443/tcp           x4
+20:49:03  app                    -> 198.51.100.1.443/tcp           x26
+20:49:05  phoenix                -> 198.51.100.1.443/tcp           x1
+20:58:28  vectorai               -> 198.51.100.1.443/tcp           x1
+
+== Coverage ==
+DNS log:        61 lookups recorded
+Packet capture: present. Packets dropped by kernel during capture: 0
+Firewall log:   32 blocked packets logged
+
+Outside all three records:
+  - Traffic from the host itself (Docker daemon, Ubuntu services), which does
+    not cross br-rag or the stack's DNS sinkhole.
+  - Requests made by a browser viewing a component UI from another machine.
+  - Payload contents. Destinations are visible; encrypted contents are not.
+  - Behavior that only triggers outside this run's actions or time window.
