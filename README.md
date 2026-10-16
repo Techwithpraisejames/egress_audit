@@ -48,12 +48,26 @@ All three records miss traffic from the host itself, requests from a browser on 
 
 ## Results from the article
 
-`results/` holds the two summaries the article reports, each produced by `audit/summarize.sh` from that run's DNS log, packet capture, and firewall log:
+`results/` holds the evidence behind the article's findings, for the pre-staged run (`prestaged.*`) and the cold-start run (`cold.*`):
 
-- `prestaged.summary.txt`, from the pre-staged run
-- `cold-start.summary.txt`, from the cold-start run
+| File | Contents |
+| --- | --- |
+| `*.dns.log` | The full DNS sinkhole log for the run |
+| `*.kernel.log` | The firewall entries (`EGRESS-BLOCK` lines) from the kernel log |
+| `*.pcap` | The outbound connection attempts from the packet capture |
+| `*.tcpdump.txt` | tcpdump's capture report, including dropped-packet counts |
+| `*.summary.txt` | The report `summarize.sh` produced from the four files above |
 
-Raw packet captures and kernel logs are not published. Your own runs write to `capture/`.
+The kernel logs and packet captures are filtered to the audit evidence. The kernel logs keep only the firewall entries. The packet captures keep only packets leaving the stack network, using the same filter `summarize.sh` applies, so traffic between the stack's own containers is left out.
+
+To reproduce a summary from the evidence:
+
+```bash
+sudo ./audit/summarize.sh results/prestaged
+sudo ./audit/summarize.sh results/cold
+```
+
+Your own runs write to `capture/`.
 
 ## Test stack
 
