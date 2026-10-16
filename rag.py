@@ -66,7 +66,6 @@ def configure_models() -> None:
         model=LLM_MODEL,
         base_url=OLLAMA_URL,
         request_timeout=300.0,
-        # Cap the context window so the model's memory use fits on a laptop.
         context_window=4096,
     )
     Settings.embed_model = HuggingFaceEmbedding(model_name=EMBED_MODEL)
