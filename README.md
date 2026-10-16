@@ -42,8 +42,18 @@ All three records miss traffic from the host itself, requests from a browser on 
 │   └── dns/
 │       ├── Dockerfile
 │       └── dnsmasq.conf
+├── results/                    # Summaries from the article's two runs
 └── capture/                    # Run output lands here
 ```
+
+## Results from the article
+
+`results/` holds the two summaries the article reports, each produced by `audit/summarize.sh` from that run's DNS log, packet capture, and firewall log:
+
+- `prestaged.summary.txt`, from the pre-staged run
+- `cold-start.summary.txt`, from the cold-start run
+
+Raw packet captures and kernel logs are not published. Your own runs write to `capture/`.
 
 ## Test stack
 
@@ -163,6 +173,8 @@ docker compose up -d
 docker compose run --rm app --question "How long are adult patient records kept?"
 ```
 
+Expect the question to take several minutes. Some libraries retry each blocked check before falling back to their cache.
+
 When the answer prints, leave the stack idle so calls on a timer can fire:
 
 ```bash
@@ -184,8 +196,6 @@ docker logs vectorai > capture/prestaged-vectorai.log 2>&1
 docker logs ollama > capture/prestaged-ollama.log 2>&1
 docker logs phoenix > capture/prestaged-phoenix.log 2>&1
 ```
-
-Expect the question to take several minutes. Some libraries retry each blocked check before falling back to their cache.
 
 ## 4. Cold-start run: setup-time calls
 
