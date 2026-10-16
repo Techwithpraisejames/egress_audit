@@ -1,8 +1,6 @@
 # Egress audit for a local AI stack
 
-This repository holds the egress audit from the article "Is Your Offline AI Stack Truly Offline?" It cuts a local Retrieval-Augmented Generation (RAG) stack off from the network, records every outbound attempt the stack still makes, and attributes each attempt to the component that made it.
-
-Use it to check what your own on-prem AI stack does on the network before you call it air-gapped.
+This egreess audit cuts a local Retrieval-Augmented Generation (RAG) stack off from the network, records every outbound attempt the stack still makes, and attributes each attempt to the component that made it. Use it to check what your own on-prem AI stack does on the network before you call it air-gapped.
 
 ## What the audit does
 
@@ -13,17 +11,15 @@ The audit cuts the network without unplugging anything. Unplugged tools give up 
 
 Each component has a fixed address on the stack network, so every attempt can be attributed.
 
-### Three records, none complete on its own
+### Three records are stored
 
-| Record | Shows | Misses |
+| Record | Shows | Excludes |
 | --- | --- | --- |
 | DNS sinkhole log | Every hostname a component tried to resolve, and who asked | Connections to hard-coded IP addresses |
 | Packet capture (`tcpdump` on `br-rag`) | Every packet a component put on the stack network | Lookups that never resolve, host traffic, anything outside the capture window |
 | Firewall log (kernel log) | Every packet the firewall blocked | Messages the kernel rate-limits, or everything if the LOG target is unavailable |
 
-Report every finding with the records that show it. A finding in two or more records is corroborated. A finding in one record is still reported, with that limit stated.
-
-All three records miss traffic from the host itself, requests from a browser on another machine, encrypted payload contents, and anything outside the run's actions and time window. State these limits wherever you publish results.
+All three records do not include traffic from the host itself, requests from a browser on another machine, encrypted payload contents, and anything outside the run's actions and time window. 
 
 ## Repository layout
 
@@ -34,7 +30,7 @@ All three records miss traffic from the host itself, requests from a browser on 
 ├── docker-compose.audit.yml    # Audit overlay: DNS sinkhole and per-service DNS settings
 ├── Dockerfile                  # App image (Python 3.12)
 ├── requirements.txt            # Every Python package, pinned
-├── rag.py                      # Minimal RAG pipeline used as the test subject
+├── rag.py                      # Minimal local RAG pipeline used as the test subject
 ├── docs/                       # Sample documents the pipeline ingests
 ├── audit/
 │   ├── egress-deny.sh          # Deny-all egress policy: on, off, status
@@ -42,13 +38,13 @@ All three records miss traffic from the host itself, requests from a browser on 
 │   └── dns/
 │       ├── Dockerfile
 │       └── dnsmasq.conf
-├── results/                    # Summaries from the article's two runs
-└── capture/                    # Run output lands here
+├── results/                    # Summaries from the two runs
+└── capture/                    # Your run output lands here
 ```
 
-## Results from the article
+## Results summary
 
-`results/` holds the evidence behind the article's findings, for the pre-staged run (`prestaged.*`) and the cold-start run (`cold.*`):
+`results/` holds the evidence for the pre-staged run (`prestaged.*`) and the cold-start run (`cold.*`):
 
 | File | Contents |
 | --- | --- |
@@ -305,7 +301,6 @@ Settings documented by each vendor:
 3. **Firewall blocks.** From the kernel log.
 4. **Coverage.** How many entries each record holds, packets the capture dropped, whether the kernel rate-limited firewall messages, and what all three records miss.
 
-All times are UTC. The firewall log's clock can drift from the other two records, especially under WSL. Use the DNS log and component logs for timestamps, and the firewall log for counts and order.
 
 ## Adapting the audit to your own stack
 
@@ -315,10 +310,7 @@ All times are UTC. The firewall log's clock can drift from the other two records
 4. **Set `BRIDGE`** in `audit/egress-deny.sh` and the `-i` interface in the `tcpdump` command to your bridge name.
 5. **Run your own representative workload** in place of the sample question, and keep the idle window long enough to catch calls on a timer.
 
-## Limitations
+## Notes
 
 - The policy covers the stack's container network. It does not cover the host's own traffic or IPv6.
-- A single node, a small stack, and one query per run.
 - Destinations are visible, but encrypted contents are not.
-- A fixed observation window can't rule out calls on a longer schedule.
-- This audit models one layer of an air gap. A production enclave also needs no NAT, no public DNS resolution, an internal mirror or signed media for updates, and controls at the network perimeter.
