@@ -1,0 +1,41 @@
+HALVERSON REGIONAL HEALTH
+Outpatient Intake Procedure
+Procedure ID: CL-117
+Version: 2.4
+Owner: Ambulatory Care Operations
+Effective date: 15 January 2026
+Classification: Internal, Confidential
+
+1. Scope
+
+This procedure covers the registration of new and returning patients at all Halverson outpatient clinics. Front desk staff, intake nurses, and clinic supervisors must follow it.
+
+2. Before the visit
+
+Patients receive a pre-registration link 72 hours before their appointment. The link collects demographic details, insurance information, current medications, and known allergies.
+
+Staff verify insurance eligibility no later than 24 hours before the appointment. If eligibility cannot be confirmed, the clinic supervisor contacts the patient to discuss self-pay options.
+
+3. At check-in
+
+The front desk confirms the patient's identity using two identifiers, full name and date of birth. A photo ID is required at the first visit and once every 12 months after that.
+
+The patient signs the consent-to-treat form and the privacy notice acknowledgment. Signed forms are scanned into the patient record within one business day.
+
+Staff must never read identifiers, diagnoses, or insurance details aloud in the waiting area.
+
+4. Intake assessment
+
+The intake nurse records vital signs, reason for visit, and a medication reconciliation. Any allergy that is new or different from the pre-registration answers is flagged for the treating clinician.
+
+The nurse completes a fall-risk screen for every patient aged 65 or older.
+
+5. Use of the clinical document search assistant
+
+Intake nurses may use the clinical document search assistant to look up procedures and policies. They must not paste patient names, medical record numbers, or dates of birth into the assistant.
+
+The assistant runs on Halverson's internal network. If a nurse sees a message suggesting the assistant is connecting to an outside service, they must stop using it and report the message to the IT Service Desk.
+
+6. Escalation
+
+If a patient arrives with symptoms that match the emergency criteria in procedure CL-101, the intake nurse stops the intake process and escalates to the charge nurse immediately.

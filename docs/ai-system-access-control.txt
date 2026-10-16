@@ -1,0 +1,41 @@
+HALVERSON REGIONAL HEALTH
+Access Control Standard for AI Systems
+Standard ID: SEC-312
+Version: 1.2
+Owner: Information Security Office
+Effective date: 1 June 2026
+Classification: Internal, Restricted
+
+1. Scope
+
+This standard applies to every AI system that processes Halverson data, including the clinical document search assistant, its language model server, its embedding model, and its vector database.
+
+2. Network boundary
+
+AI systems run inside the restricted clinical network segment. Outbound internet access from this segment is denied by default.
+
+Any outbound connection from an AI system must be approved by the Information Security Office and listed in the egress allowlist. Each allowlist entry records the destination, the business reason, the data the connection carries, and an expiry date no later than 12 months after approval.
+
+Software updates, model weights, and container images enter the segment through the internal artifact mirror. They are never pulled directly from public registries.
+
+3. Telemetry
+
+Vendor telemetry, usage statistics, and automatic update checks must be disabled on every component before it enters production. The system owner attaches evidence of this to the deployment ticket.
+
+4. User access
+
+Access to the clinical document search assistant requires single sign-on with multi-factor authentication.
+
+Clinical staff receive read access to policy and procedure collections only. Access to collections built from patient records requires approval from the patient's care team and the Privacy Officer.
+
+Administrative access to the vector database is limited to two named engineers on the Platform team. Their sessions are logged and reviewed monthly.
+
+5. Verification
+
+Before go-live, and every 6 months after that, the Platform team runs an egress audit on each AI system. The audit captures all outbound traffic during startup, ingestion, and at least one full query cycle, with outbound access set to deny-all.
+
+A system passes when the capture shows zero outbound connection attempts outside the approved allowlist. The Platform team keeps the capture file and the audit report as evidence for 6 years.
+
+6. Exceptions
+
+Exceptions to this standard require written approval from the Chief Information Security Officer and expire after 90 days.

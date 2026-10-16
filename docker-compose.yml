@@ -1,0 +1,68 @@
+# Test fixture for the egress audit.
+# Each image is pinned by digest to the exact build that produced the capture.
+# Docker ignores the "latest" tag when a digest is present; the tag stays
+# only for readability.
+
+services:
+  vectorai:
+    image: actian/vectorai:latest@sha256:113be9be4a1f71f6c42069de0eaf6adc9912898dfc7226c500afbb121af8c7a6
+    container_name: vectorai
+    ports:
+      - "6573:6573"
+      - "6574:6574"   # gRPC
+      - "6575:6575"   # Local UI
+    volumes:
+      - ./local_data:/var/lib/actian-vectorai
+    environment:
+      - ACTIAN_VECTORAI_ACCEPT_EULA=YES
+    networks:
+      - rag
+
+  ollama:
+    image: ollama/ollama:latest@sha256:adca95a12c2b386a8f9a995e7fa0600e187e3323b5e5522f5a6c3b1ec73eff99
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    networks:
+      - rag
+
+  phoenix:
+    image: arizephoenix/phoenix:latest@sha256:4a58a611389459514a936960d306776b976ed66c96649cef834bbc683ae5b4ab
+    container_name: phoenix
+    ports:
+      - "6006:6006"   # Web UI and OTLP over HTTP
+      - "4317:4317"   # OTLP over gRPC
+    volumes:
+      - ./phoenix_data:/mnt/data
+    environment:
+      - PHOENIX_WORKING_DIR=/mnt/data
+    networks:
+      - rag
+
+  # The RAG pipeline itself. The "app" profile keeps it out of
+  # `docker compose up`, so it only runs when you call it with
+  # `docker compose run --rm app --question "..."`.
+  app:
+    build: .
+    profiles: ["app"]
+    depends_on:
+      - vectorai
+      - ollama
+      - phoenix
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - VECTORAI_URL=vectorai:6574
+      - PHOENIX_TRACES_URL=http://phoenix:6006/v1/traces
+    volumes:
+      - ./docs:/app/docs:ro
+      - ./hf_cache:/root/.cache/huggingface
+    networks:
+      - rag
+
+networks:
+  rag:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-rag

@@ -1,0 +1,47 @@
+HALVERSON REGIONAL HEALTH
+Data Retention and Disposal Policy
+Policy ID: IG-204
+Version: 3.1
+Owner: Information Governance Office
+Effective date: 1 March 2026
+Classification: Internal, Confidential
+
+1. Purpose
+
+This policy sets how long Halverson Regional Health keeps each category of record and how those records are destroyed at the end of their retention period. It applies to every system that stores patient, employee, or operational data, including the clinical document search assistant.
+
+2. Retention periods
+
+Adult patient medical records are retained for 10 years after the patient's last visit.
+
+Records for patients who were minors at the time of care are retained until the patient turns 25, or for 10 years after the last visit, whichever is later.
+
+Diagnostic imaging files are retained for 7 years after the date of the study.
+
+Billing and insurance claim records are retained for 7 years after the claim closes.
+
+Employee personnel files are retained for 6 years after the employee leaves the organization.
+
+Audit logs from clinical systems, including access logs and network logs, are retained for 6 years.
+
+Prompts and responses from the clinical document search assistant are retained for 90 days and then deleted automatically.
+
+3. Storage location
+
+All records covered by this policy must be stored on infrastructure inside the Halverson data center. Copying records to an external service, including a hosted AI or embedding provider, requires written approval from the Information Governance Office and a signed data processing agreement.
+
+4. Disposal
+
+Paper records are cross-cut shredded by an approved vendor, and the vendor issues a certificate of destruction for each batch.
+
+Electronic records are deleted using a method that prevents recovery. Decommissioned drives are physically destroyed on site.
+
+Vector indexes built from patient records are treated as patient records. When a source document reaches the end of its retention period, its embeddings must be deleted from the vector database within 30 days.
+
+5. Legal holds
+
+A legal hold issued by the General Counsel suspends disposal for every record it covers, regardless of the retention periods above. The hold stays in force until the General Counsel releases it in writing.
+
+6. Review
+
+The Information Governance Office reviews this policy every 12 months.
