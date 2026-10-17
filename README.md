@@ -28,6 +28,7 @@ All three records do not include traffic from the host itself, requests from a b
 ├── README.md
 ├── docker-compose.yml          # Test stack, pinned by image digest, with fixed addresses
 ├── docker-compose.audit.yml    # Audit overlay: DNS sinkhole and per-service DNS settings
+├── docker-compose.hardened.yml # Offline settings for the hardened re-run
 ├── Dockerfile                  # App image (Python 3.12)
 ├── requirements.txt            # Every Python package, pinned
 ├── rag.py                      # Minimal local RAG pipeline used as the test subject
@@ -38,13 +39,13 @@ All three records do not include traffic from the host itself, requests from a b
 │   └── dns/
 │       ├── Dockerfile
 │       └── dnsmasq.conf
-├── results/                    # Summaries from the two runs
+├── results/                    # Evidence from the three runs
 └── capture/                    # Your run output lands here
 ```
 
 ## Results summary
 
-`results/` holds the evidence for the pre-staged run (`prestaged.*`) and the cold-start run (`cold.*`):
+`results/` holds the evidence for the pre-staged run (`prestaged.*`) the cold-start run (`cold.*`), and the hardened re-run (`hardened.*`):
 
 | File | Contents |
 | --- | --- |
@@ -61,6 +62,7 @@ To reproduce a summary from the evidence:
 ```bash
 sudo ./audit/summarize.sh results/prestaged
 sudo ./audit/summarize.sh results/cold
+sudo ./audit/summarize.sh results/hardened
 ```
 
 Your own runs write to `capture/`.
@@ -75,7 +77,7 @@ Your own runs write to `capture/`.
 | LlamaIndex | RAG framework | `llama-index-core` 0.14.25 |
 | Arize Phoenix | Tracing and observability | 20.21.1 |
 
-Every component runs with its defaults. The stack runs as written in the official docs, so the audit measures what a typical deployment does on day one.
+The pre-staged and cold-start runs use each component's defaults. The hardened re-run applies the settings in `docker-compose.hardened.yml`.
 
 Component addresses on the stack network:
 
@@ -278,19 +280,68 @@ docker compose up -d
 
 ## 6. Hardened re-run: the clean log
 
-> **Draft.** This section is being validated and will change.
 
-Switch off each caller the earlier runs found, then repeat the pre-staged run under deny-all. A run that records no outbound attempts across the full window is the log you show an auditor.
+Switch off each caller the earlier runs found, then repeat the pre-staged run under deny-all. The log from this run is the record you show an auditor.
 
-Settings documented by each vendor:
+`docker-compose.hardened.yml` applies the setting each vendor documents:
 
 | Component | Setting | Documented effect |
 | --- | --- | --- |
 | Ollama | `OLLAMA_NO_CLOUD=1` | Runs Ollama in local-only mode, without cloud features |
-| Phoenix | `PHOENIX_ALLOW_EXTERNAL_RESOURCES=false` | Stops Phoenix's own public-internet requests, for air-gapped environments |
-| Phoenix | `PHOENIX_TELEMETRY_ENABLED=false` | Turns off analytics tracking |
+| Arize Phoenix | `PHOENIX_ALLOW_EXTERNAL_RESOURCES=false` | Stops Phoenix's own public-internet requests, for air-gapped environments |
+| Arize Phoenix | `PHOENIX_TELEMETRY_ENABLED=false` | Turns off analytics tracking |
 | Hugging Face libraries | `HF_HUB_OFFLINE=1` | Uses only the local cache |
-| VectorAI DB | To be confirmed | |
+| VectorAI DB | No setting applied | Keeps its defaults; the DNS sinkhole and egress firewall block its deployment ping |
+
+Start from the pre-staged state (step 5 restores it). Terminal 1:
+
+```bash
+export COMPOSE_FILE=docker-compose.yml:docker-compose.audit.yml:docker-compose.hardened.yml
+docker compose down
+docker compose up --no-start
+sudo ./audit/egress-deny.sh on
+sudo truncate -s 0 capture/dns.log
+sudo dmesg -C
+```
+
+Terminal 2 (leave it running):
+
+```bash
+sudo tcpdump -i br-rag -nn -s 0 -w capture/hardened.pcap 2>&1 | tee -i capture/hardened.tcpdump.txt
+```
+
+Terminal 1. Start the stack, confirm the settings took effect, then ask a question before and after the 10-minute mark:
+
+```bash
+docker compose up -d
+docker exec ollama printenv OLLAMA_NO_CLOUD
+docker inspect phoenix --format '{{range .Config.Env}}{{println .}}{{end}}' | grep PHOENIX_
+docker compose run --rm --entrypoint printenv app HF_HUB_OFFLINE
+docker compose run --rm app --question "How long are adult patient records kept?" 2>&1 | tee capture/hardened-q1.txt
+sleep 720
+docker compose run --rm app --question "How long are adult patient records kept?" 2>&1 | tee capture/hardened-q2.txt
+sleep 1200
+```
+
+The Phoenix image has no `printenv`, so its settings are read with `docker inspect`. Then press Ctrl+C in Terminal 2, and in Terminal 1 save the logs before stopping the stack:
+
+```bash
+docker logs vectorai > capture/hardened-vectorai.log 2>&1
+docker logs ollama > capture/hardened-ollama.log 2>&1
+docker logs phoenix > capture/hardened-phoenix.log 2>&1
+sudo cp capture/dns.log capture/hardened.dns.log
+sudo TZ=UTC dmesg --time-format iso > capture/hardened.kernel.log
+sudo ./audit/summarize.sh capture/hardened | tee capture/hardened.summary.txt
+sudo ./audit/egress-deny.sh off
+docker compose down
+unset COMPOSE_FILE
+```
+
+### What the hardened run recorded
+
+The hardened summary records two DNS lookups from VectorAI DB for `elspv.pervasive.com` (A and AAAA), one outbound TCP connection attempt to `198.51.100.1:443`, and one firewall block. The capture report records zero packets dropped by the kernel. No other component appears in the recorded outbound attempts.
+
+The network controls blocked the remaining attempt, so this run does not show zero outbound attempts. These records cover the observed workload and time window; they do not rule out later calls.
 
 ## Reading the summary
 

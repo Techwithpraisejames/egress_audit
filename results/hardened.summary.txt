@@ -1,0 +1,21 @@
+== DNS lookups, UTC (first seen, asked by, record type, hostname, count) ==
+21:30:42  vectorai               A     elspv.pervasive.com                                x1
+21:30:42  vectorai               AAAA  elspv.pervasive.com                                x1
+
+== Connection attempts leaving the stack, UTC (first seen, from, to, count) ==
+21:30:42  vectorai               -> 198.51.100.1.443/tcp           x1
+
+== Firewall blocks, UTC (first seen, from, to, count) ==
+21:35:12  vectorai               -> 198.51.100.1.443/tcp           x1
+
+== Coverage ==
+DNS log:        2 lookups recorded
+Packet capture: present. Packets dropped by kernel during capture: 0
+Firewall log:   1 blocked packets logged
+
+Outside all three records:
+  - Traffic from the host itself (Docker daemon, Ubuntu services), which does
+    not cross br-rag or the stack's DNS sinkhole.
+  - Requests made by a browser viewing a component UI from another machine.
+  - Payload contents. Destinations are visible; encrypted contents are not.
+  - Behavior that only triggers outside this run's actions or time window.

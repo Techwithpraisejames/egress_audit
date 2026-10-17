@@ -1,0 +1,22 @@
+# Hardened overlay for the egress audit.
+#
+# Switches off every outbound call the earlier runs found that has a
+# documented setting. VectorAI DB keeps its defaults: its deployment ping has
+# no setting, and the network controls close it.
+#
+# Use it on top of the base file and the audit overlay:
+#   export COMPOSE_FILE=docker-compose.yml:docker-compose.audit.yml:docker-compose.hardened.yml
+
+services:
+  ollama:
+    environment:
+      - OLLAMA_NO_CLOUD=1
+
+  phoenix:
+    environment:
+      - PHOENIX_ALLOW_EXTERNAL_RESOURCES=false
+      - PHOENIX_TELEMETRY_ENABLED=false
+
+  app:
+    environment:
+      - HF_HUB_OFFLINE=1
