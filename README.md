@@ -1,25 +1,30 @@
 # Egress audit for a local AI stack
 
-This egreess audit cuts a local Retrieval-Augmented Generation (RAG) stack off from the network, records every outbound attempt the stack still makes, and attributes each attempt to the component that made it. Use it to check what your own on-prem AI stack does on the network before you call it air-gapped.
+A RAG application can answer questions using local models and still attempt to contact external services. This repository shows how to test that behavior: block outbound **IPv4** traffic from the stack's Docker bridge, record attempted connections, and attribute them to individual services.
 
-## What the audit does
+**Reproduce three tests:** a pre-staged run with cached models, a cold-start run with empty caches, and a hardened run with offline settings enabled. You can run the experiment using this README alone.
 
-The audit cuts the network without unplugging anything. Unplugged tools give up before they send a packet, which leaves nothing to record. Instead, two controls keep the network interface up and block traffic:
+**Scope:** We audited container IPv4 traffic on the dedicated `br-rag` Docker bridge, using Ubuntu 24.04 under WSL2. This is not a whole-host audit or proof of a physically air-gapped deployment. Host traffic, external browsers, IPv6, and activity outside the observation window are not covered. **IPv6 status has not yet been verified.**
 
-- **A deny-all egress firewall** (`audit/egress-deny.sh`). Rules go in Docker's `DOCKER-USER` chain. Traffic between the stack's containers is allowed, and so are replies to connections started outside the stack, such as a browser opening a component's UI. Every other packet leaving the stack network is logged with the prefix `EGRESS-BLOCK` and rejected.
-- **A logging DNS sinkhole** (`docker-compose.audit.yml`, `audit/dns/`). A dnsmasq container logs every hostname the stack looks up and answers every external name with `198.51.100.1`, an address reserved for documentation (RFC 5737). Nothing is forwarded upstream. A component that looks up a host gets an answer, tries to connect, and hits the firewall.
+**Start here:** Read [Requirements](#requirements), then follow steps 1 through 6 in order. To inspect existing evidence instead, see [Results and evidence](#results-and-evidence). To audit a different deployment, see [Adapting the audit](#adapting-the-audit-to-your-own-stack).
 
-Each component has a fixed address on the stack network, so every attempt can be attributed.
+## How the audit works
 
-### Three records are stored
+We keep the Docker network running and reject outbound IPv4 connections instead of disconnecting the machine. This lets components attempt connections while we capture the evidence.
 
-| Record | Shows | Excludes |
+- **Firewall:** `audit/egress-deny.sh` adds rules to Docker's `DOCKER-USER` chain. It permits communication within `br-rag` and established or related replies, while rejecting other matching outbound IPv4 packets. When kernel logging is supported, rejected packets appear under `EGRESS-BLOCK`.
+- **DNS sinkhole:** The audit overlay points each service at a local dnsmasq server. It records queried hostnames and answers external lookups with `198.51.100.1`, a documentation-only address. It forwards nothing to a public resolver.
+- **Packet capture:** `tcpdump` records traffic on `br-rag` while the workload runs.
+
+Each service has a fixed IPv4 address, allowing us to associate **observed** traffic with the originating container.
+
+| Evidence | What it tells you | What it misses |
 | --- | --- | --- |
-| DNS sinkhole log | Every hostname a component tried to resolve, and who asked | Connections to hard-coded IP addresses |
-| Packet capture (`tcpdump` on `br-rag`) | Every packet a component put on the stack network | Lookups that never resolve, host traffic, anything outside the capture window |
-| Firewall log (kernel log) | Every packet the firewall blocked | Messages the kernel rate-limits, or everything if the LOG target is unavailable |
+| DNS log | Which hostnames a service resolved through the sinkhole | Connections to literal IP addresses |
+| Packet capture | Outbound packets visible on the bridge during the capture | Events outside the capture window and host traffic |
+| Kernel firewall log | Packets logged and rejected under the firewall policy | Events lost to log rate limits or unavailable logging |
 
-All three records do not include traffic from the host itself, requests from a browser on another machine, encrypted payload contents, and anything outside the run's actions and time window. 
+Use all three records together. They show destinations and attempts, not the contents of encrypted requests.
 
 ## Repository layout
 
@@ -43,21 +48,29 @@ All three records do not include traffic from the host itself, requests from a b
 └── capture/                    # Your run output lands here
 ```
 
-## Results summary
+## Results and evidence
 
-`results/` holds the evidence for the pre-staged run (`prestaged.*`) the cold-start run (`cold.*`), and the hardened re-run (`hardened.*`):
+The original runs are preserved in `results/`. **The counts below are logged blocked packets, not unique API requests or confirmed data transfers.**
 
-| File | Contents |
+| Test | What happened | Blocked packets |
+| --- | --- | ---: |
+| Pre-staged | The cached RAG stack answered the patient-records question | 52 |
+| Cold-start | Missing model files prevented the query from completing | 32 |
+| Hardened | Offline settings eliminated observed Ollama, app, and Phoenix attempts in the test window; one VectorAI DB usage notification was blocked | 1 |
+
+The hardened result is **not zero attempted egress**. The remaining attempt was blocked at the network boundary.
+
+Each test saves these artifacts:
+
+| File | Purpose |
 | --- | --- |
-| `*.dns.log` | The full DNS sinkhole log for the run |
-| `*.kernel.log` | The firewall entries (`EGRESS-BLOCK` lines) from the kernel log |
-| `*.pcap` | The outbound connection attempts from the packet capture |
-| `*.tcpdump.txt` | tcpdump's capture report, including dropped-packet counts |
-| `*.summary.txt` | The report `summarize.sh` produced from the four files above |
+| `*.dns.log` | DNS queries recorded by the sinkhole |
+| `*.kernel.log` | Firewall entries with the `EGRESS-BLOCK` prefix |
+| `*.pcap` | Captured network packets |
+| `*.tcpdump.txt` | Capture report, including kernel drop counts |
+| `*.summary.txt` | Output generated by `audit/summarize.sh` |
 
-The kernel logs and packet captures are filtered to the audit evidence. The kernel logs keep only the firewall entries. The packet captures keep only packets leaving the stack network, using the same filter `summarize.sh` applies, so traffic between the stack's own containers is left out.
-
-To reproduce a summary from the evidence:
+To reproduce the existing summaries from the checked-in evidence:
 
 ```bash
 sudo ./audit/summarize.sh results/prestaged
@@ -65,7 +78,7 @@ sudo ./audit/summarize.sh results/cold
 sudo ./audit/summarize.sh results/hardened
 ```
 
-Your own runs write to `capture/`.
+**New test runs write into `capture/`.** Preserve the original files in `results/` so you can compare the runs.
 
 ## Test stack
 
@@ -92,14 +105,17 @@ Component addresses on the stack network:
 
 ## Requirements
 
-- A Linux host with Docker Engine and the Compose plugin
-- `iptables`, `tcpdump`, and `sudo`
-- About 12 GB of memory for the full stack
-- Network access for the first setup, to pull images and the model
+- Linux with Docker Engine and the Compose plugin. The experiment used **Ubuntu 24.04 under WSL2**, with Docker Engine installed inside Ubuntu.
+- `sudo`, `iptables`, `tcpdump`, and permission to read kernel messages using `dmesg`.
+- Around **12 GB RAM** for the stack.
+- An internet connection during the initial installation and model-staging steps.
+- **Two terminals** for each capture: one for Docker and the query, another for `tcpdump`.
 
-Tested on Ubuntu 24.04 running under WSL2 with Docker Engine installed inside Ubuntu. Docker Desktop is not supported for the capture, because it runs containers in a separate system the firewall rules and capture can't reach.
+**Do not run this experiment on a production host.** The firewall changes forwarding rules, `dmesg -C` clears the kernel message buffer, and cold-start testing moves model and data folders aside. Use disposable test data and review commands before running them.
 
-## 1. Set up the stack (network open)
+The procedure assumes the bridge is visible on the Linux host as `br-rag`. Docker Desktop runs containers in a different environment and is not supported by this capture setup.
+
+## 1. Prepare and test the stack (internet available)
 
 ```bash
 mkdir -p local_data ollama_data phoenix_data hf_cache model_cache
@@ -110,9 +126,9 @@ docker compose build app
 docker compose run --rm app --question "How long are adult patient records kept?"
 ```
 
-The question should return an answer drawn from `docs/`. VectorAI DB runs as user 999 inside its container, so it needs to own its data folder.
+The application should answer using the synthetic documents in `docs/`. Confirm it works before blocking connections. VectorAI DB runs as UID 999 inside its container, so that user must own the local data directory.
 
-## 2. Install and test the audit (network open)
+## 2. Verify DNS and firewall logging
 
 Run every command from the repository root. Open two terminals, one for the stack and one for the packet capture, and set this in each:
 
@@ -127,14 +143,14 @@ docker compose build dns
 docker compose up -d
 ```
 
-Test the sinkhole. The answer should be `198.51.100.1`:
+Test the sinkhole before starting an isolated run. The answer should be the reserved address `198.51.100.1`, and the hostname should appear in the DNS log:
 
 ```bash
 docker compose run --rm --entrypoint python app -c "import socket; print(socket.gethostbyname('huggingface.co'))"
 sudo cat capture/dns.log
 ```
 
-Test the firewall. The `on` command should print `Firewall-level logging: enabled`, and the connection should fail at once with `ConnectionRefusedError`:
+Test a connection to a literal IP address, which would bypass DNS logging. It should fail, typically with `ConnectionRefusedError`:
 
 ```bash
 sudo ./audit/egress-deny.sh on
@@ -144,11 +160,11 @@ sudo dmesg | grep EGRESS-BLOCK | tail -3
 sudo ./audit/egress-deny.sh off
 ```
 
-If the firewall reports `UNAVAILABLE`, your kernel lacks the iptables LOG target. Blocking still works, but record the missing firewall log in your results.
+If the firewall reports `Firewall-level logging: UNAVAILABLE`, blocking still works but the kernel log cannot provide complete firewall evidence. Record this limitation. The last command switches the test policy back off.
 
-## 3. Pre-staged run: runtime calls
+## 3. Pre-staged run: check cached-model behavior
 
-The model, embedding model, and database are already in place, the way an air-gapped site installs from approved media. This run shows what the stack calls at runtime and whether it still answers.
+Start with the model and embedding files already cached locally. This run shows which external connections services attempt after the setup dependencies are present, and whether the RAG query still completes. We warmed caches online for this experiment; a physically air-gapped installation would use approved offline transfer procedures.
 
 Warm the caches with the network open. `-f docker-compose.yml` runs the app without the sinkhole so downloads can complete:
 
@@ -185,7 +201,7 @@ docker compose up -d
 docker compose run --rm app --question "How long are adult patient records kept?"
 ```
 
-Expect the question to take several minutes. Some libraries retry each blocked check before falling back to their cache.
+The question may take several minutes because some libraries retry blocked registry checks before loading cached files. Save the successful response if you also want functional evidence.
 
 When the answer prints, leave the stack idle so calls on a timer can fire:
 
@@ -209,9 +225,9 @@ docker logs ollama > capture/prestaged-ollama.log 2>&1
 docker logs phoenix > capture/prestaged-phoenix.log 2>&1
 ```
 
-## 4. Cold-start run: setup-time calls
+## 4. Cold-start run: expose setup dependencies
 
-Caches and data are moved aside, so the stack has to fetch everything. This run shows the setup-time calls.
+This run moves the active model caches and disposable test data into `.warm` backup folders to reveal what the stack tries to download when starting without local dependencies. **Do not run these directory operations against production data.**
 
 Terminal 1:
 
@@ -261,7 +277,7 @@ docker logs phoenix > capture/cold-phoenix.log 2>&1
 
 Component logs often name the exact URL each call was trying to reach.
 
-## 5. Restore the working stack
+## 5. Restore the cached working stack
 
 ```bash
 docker compose down
@@ -276,12 +292,12 @@ unset COMPOSE_FILE
 docker compose up -d
 ```
 
-`unset COMPOSE_FILE` drops the sinkhole, so the stack can reach the network again.
+`unset COMPOSE_FILE` returns Compose to the base configuration. Check the paths before running the cleanup commands: they remove temporary cold-start folders and restore the `.warm` backups.
 
-## 6. Hardened re-run: the clean log
+## 6. Hardened run: verify offline settings
 
 
-Switch off each caller the earlier runs found, then repeat the pre-staged run under deny-all. The log from this run is the record you show an auditor.
+Apply documented offline settings and repeat the pre-staged workload under the firewall. Compare network activity and verify that the query still works. The aim is to **account for remaining attempts**, rather than to claim a universal zero-egress result.
 
 `docker-compose.hardened.yml` applies the setting each vendor documents:
 
@@ -341,7 +357,7 @@ unset COMPOSE_FILE
 
 The hardened summary records two DNS lookups from VectorAI DB for `elspv.pervasive.com` (A and AAAA), one outbound TCP connection attempt to `198.51.100.1:443`, and one firewall block. The capture report records zero packets dropped by the kernel. No other component appears in the recorded outbound attempts.
 
-The network controls blocked the remaining attempt, so this run does not show zero outbound attempts. These records cover the observed workload and time window; they do not rule out later calls.
+The network controls blocked the remaining attempt. The result applies to this workload, test window, and Docker IPv4 bridge. It cannot rule out later calls or traffic from other interfaces.
 
 ## Reading the summary
 
@@ -361,7 +377,13 @@ The network controls blocked the remaining attempt, so this run does not show ze
 4. **Set `BRIDGE`** in `audit/egress-deny.sh` and the `-i` interface in the `tcpdump` command to your bridge name.
 5. **Run your own representative workload** in place of the sample question, and keep the idle window long enough to catch calls on a timer.
 
-## Notes
+## Scope and limitations
 
-- The policy covers the stack's container network. It does not cover the host's own traffic or IPv6.
-- Destinations are visible, but encrypted contents are not.
+- **IPv4 scope:** The firewall and attribution cover IPv4 forwarding from the monitored Docker bridge. We have not yet verified whether IPv6 was enabled, so no IPv6 isolation claim is made.
+- **Network boundary:** Host processes, browsers running elsewhere, and other interfaces fall outside this capture.
+- **Established connections:** The policy allows `ESTABLISHED,RELATED` traffic. Begin isolated tests with fresh service connections; this is not a guarantee that all existing network flows were terminated.
+- **Logging limits:** Literal-IP connections bypass DNS logging. Kernel logs can be rate-limited or unavailable, and packet captures only cover their own capture window.
+- **Payloads:** A destination or hostname does not establish what an encrypted request contains.
+- **Air gap:** This experiment uses firewall-enforced isolation on a running network. It does not implement a physically disconnected environment, offline signed-media intake, or full compliance certification.
+
+When adapting this method, record any additional routes or protocols you test and make only the isolation claims that your measurements support.
