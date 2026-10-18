@@ -2,9 +2,9 @@
 
 A RAG application can answer questions using local models and still attempt to contact external services. This repository shows how to test that behavior: block outbound **IPv4** traffic from the stack's Docker bridge, record attempted connections, and attribute them to individual services.
 
-**Reproduce three tests:** a pre-staged run with cached models, a cold-start run with empty caches, and a hardened run with offline settings enabled. You can run the experiment using this README alone.
+**Reproduce three tests:** a pre-staged run with cached models, a cold-start run with empty caches, and a hardened run with offline settings enabled. The steps below cover the full setup, capture, and comparison workflow.
 
-**Scope:** We audited container IPv4 traffic on the dedicated `br-rag` Docker bridge, using Ubuntu 24.04 under WSL2. This is not a whole-host audit or proof of a physically air-gapped deployment. Host traffic, external browsers, IPv6, and activity outside the observation window are not covered. **IPv6 status has not yet been verified.**
+**Test environment:** Ubuntu 24.04 under WSL2, with the RAG services on a dedicated Docker bridge (`br-rag`). We focused on IPv4 traffic from that network. See [Audit coverage](#audit-coverage) for the boundaries of the test.
 
 **Start here:** Read [Requirements](#requirements), then follow steps 1 through 6 in order. To inspect existing evidence instead, see [Results and evidence](#results-and-evidence). To audit a different deployment, see [Adapting the audit](#adapting-the-audit-to-your-own-stack).
 
@@ -111,9 +111,9 @@ Component addresses on the stack network:
 - An internet connection during the initial installation and model-staging steps.
 - **Two terminals** for each capture: one for Docker and the query, another for `tcpdump`.
 
-**Do not run this experiment on a production host.** The firewall changes forwarding rules, `dmesg -C` clears the kernel message buffer, and cold-start testing moves model and data folders aside. Use disposable test data and review commands before running them.
+**Use a test environment.** The commands adjust Docker firewall rules, clear the kernel message buffer with `dmesg -C`, and temporarily move model and data directories during the cold-start run. Keep production data and logs separate.
 
-The procedure assumes the bridge is visible on the Linux host as `br-rag`. Docker Desktop runs containers in a different environment and is not supported by this capture setup.
+Run these commands with Docker Engine on the same Linux host where `br-rag` is visible to `iptables` and `tcpdump`. The capture commands are designed for that setup, rather than Docker Desktop's separate networking environment.
 
 ## 1. Prepare and test the stack (internet available)
 
@@ -297,7 +297,7 @@ docker compose up -d
 ## 6. Hardened run: verify offline settings
 
 
-Apply documented offline settings and repeat the pre-staged workload under the firewall. Compare network activity and verify that the query still works. The aim is to **account for remaining attempts**, rather than to claim a universal zero-egress result.
+Apply documented offline settings and repeat the pre-staged workload under the firewall. Compare network activity and verify that the query still works. Check that the RAG query still completes, then compare the connection attempts with the earlier runs.
 
 `docker-compose.hardened.yml` applies the setting each vendor documents:
 
@@ -377,13 +377,10 @@ The network controls blocked the remaining attempt. The result applies to this w
 4. **Set `BRIDGE`** in `audit/egress-deny.sh` and the `-i` interface in the `tcpdump` command to your bridge name.
 5. **Run your own representative workload** in place of the sample question, and keep the idle window long enough to catch calls on a timer.
 
-## Scope and limitations
+## Audit coverage
 
-- **IPv4 scope:** The firewall and attribution cover IPv4 forwarding from the monitored Docker bridge. We have not yet verified whether IPv6 was enabled, so no IPv6 isolation claim is made.
-- **Network boundary:** Host processes, browsers running elsewhere, and other interfaces fall outside this capture.
-- **Established connections:** The policy allows `ESTABLISHED,RELATED` traffic. Begin isolated tests with fresh service connections; this is not a guarantee that all existing network flows were terminated.
-- **Logging limits:** Literal-IP connections bypass DNS logging. Kernel logs can be rate-limited or unavailable, and packet captures only cover their own capture window.
-- **Payloads:** A destination or hostname does not establish what an encrypted request contains.
-- **Air gap:** This experiment uses firewall-enforced isolation on a running network. It does not implement a physically disconnected environment, offline signed-media intake, or full compliance certification.
+The experiment captures **outbound IPv4 activity from the `br-rag` Docker network** while the test workload runs. We also retain DNS and firewall logs to identify attempted connections that a packet capture alone might miss. The firewall allows established or related replies, so each restricted run starts with fresh service connections.
 
-When adapting this method, record any additional routes or protocols you test and make only the isolation claims that your measurements support.
+Host processes, traffic on other interfaces, and browser requests outside this bridge are outside the capture. **IPv6 verification is still pending** and can be added once tested. The logs identify attempted destinations, although encrypted request contents and calls outside the observation window remain unknown.
+
+This setup tests firewall-enforced isolation. A physical air gap also requires controls over other network paths and software transfers. If you adapt the audit to another environment, document the interfaces and protocols you monitor.
